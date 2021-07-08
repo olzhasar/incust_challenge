@@ -1,0 +1,24 @@
+swagger: "2.0"
+info:
+  title: Product lists API
+  description: Test challenge for Incust
+  version: "1.0.0"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+paths:
+  /auth/login:
+    post:
+      operationId: "auth.login"
+      summary: Login with username - password pair and obtain JWT Token
+      responses:
+        200:
+          description: Access token
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: "string"
+                description: JWT token
