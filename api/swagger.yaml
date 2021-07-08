@@ -11,7 +11,7 @@ produces:
 paths:
   /auth/login:
     post:
-      operationId: "auth.login"
+      operationId: "api.auth.login"
       summary: Login with username - password pair and obtain JWT Token
       responses:
         200:

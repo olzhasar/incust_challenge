@@ -4,7 +4,7 @@ from flask_jwt_extended import create_access_token
 
 
 def login():
-    username = request.json.get('username', None)
+    username = request.json.get("username", None)
     password = request.json.get("password", None)
     if username != "test" or password != "test":
         return jsonify({"msg": "Bad username or password"}), 401

@@ -1,11 +1,6 @@
-from factory import create_app
+from api import create_app
 
 app = create_app()
-
-
-@app.route("/")
-def home():
-    return {"hello": "world"}
 
 
 if __name__ == "__main__":
