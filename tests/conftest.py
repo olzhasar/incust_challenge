@@ -4,17 +4,20 @@ from api import create_app
 
 @pytest.fixture(scope="session")
 def app():
-    app = create_app(testing=True)
+    connexion_app = create_app(testing=True)
+    app = connexion_app.app
 
     from api.models import db
 
-    with app.app.app_context():
+    with app.app_context():
         db.create_all()
 
-    yield app
+        yield app
+
+        db.drop_all()
 
 
 @pytest.fixture(scope="session")
 def client(app):
-    with app.app.test_client() as client:
+    with app.test_client() as client:
         yield client
