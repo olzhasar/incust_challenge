@@ -11,7 +11,7 @@ def login():
     try:
         validated = UserCreateSchema(**request.json)
     except ValidationError as e:
-        return e.json(), 400
+        abort(400, str(e))
 
     user = User.query.filter_by(username=validated.username).one_or_none()
 
@@ -26,7 +26,7 @@ def signup():
     try:
         validated = UserCreateSchema(**request.json)
     except ValidationError as e:
-        return e.json(), 400
+        abort(400, str(e))
 
     user = User(username=validated.username)
     user.set_password(validated.password)
@@ -49,7 +49,7 @@ def update():
     try:
         validated = UserChangeSchema(**request.json)
     except ValidationError as e:
-        return e.json(), 400
+        abort(400, str(e))
 
     for key, value in validated.dict().items():
         setattr(user, key, value)
