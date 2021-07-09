@@ -26,6 +26,7 @@ class TestLogin:
         )
 
         assert response.status_code == 401
+        assert response.json["detail"] == "Invalid credentials"
 
     def test_wrong_password(self, client, user_1, user_2):
         response = client.post(
@@ -37,6 +38,7 @@ class TestLogin:
         )
 
         assert response.status_code == 401
+        assert response.json["detail"] == "Invalid credentials"
 
 
 class TestSignup:
@@ -67,11 +69,11 @@ class TestSignup:
         )
 
         assert response.status_code == 400
-        assert response.json == {"msg": "Username is already taken"}
+        assert response.json["detail"] == "Username is already taken"
 
 
 class TestUpdate:
-    url = "/auth/update"
+    url = "/auth/profile"
 
     def test_unauthorized(self, client):
         response = client.put(
@@ -111,6 +113,7 @@ class TestUpdate:
         )
 
         assert response.status_code == 400
+        assert response.json["detail"] == "Username is already taken"
 
         from_db = User.query.filter_by(id=user_1.id).one_or_none()
-        assert from_db.username == "user_1"
+        assert from_db.username != user_2.username
