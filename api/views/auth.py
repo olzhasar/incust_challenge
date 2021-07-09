@@ -1,11 +1,10 @@
+from api.models import User, db
+from api.schemas import UserInSchema, UserSchema
 from connexion import request
 from flask import jsonify
 from flask_jwt_extended import create_access_token
 from pydantic import ValidationError
 from sqlalchemy import exc
-
-from api.models import User, db
-from api.schemas import UserInSchema, UserSchema
 
 
 def login():
