@@ -26,6 +26,9 @@ class PriceSchema(BaseModel):
     value: Decimal
     currency_code: str
 
+    class Config:
+        orm_mode = True
+
 
 class ProductCreateSchema(BaseModel):
     sku: str
@@ -38,13 +41,22 @@ class ProductCreateSchema(BaseModel):
 class ProductSchema(ProductCreateSchema):
     id: int
 
+    class Config:
+        orm_mode = True
+
 
 class ProductListCreateSchema(BaseModel):
-    name: str
+    name: Optional[str]
     products: List[ProductCreateSchema] = []
 
 
-class ProductListSchema(BaseModel):
+class ProductListShortSchema(BaseModel):
     id: int
-    name: str
+    name: Optional[str]
+
+
+class ProductListSchema(ProductListShortSchema):
     products: List[ProductSchema] = []
+
+    class Config:
+        orm_mode = True
