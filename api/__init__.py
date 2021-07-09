@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager
 from swagger_ui_bundle import swagger_ui_3_path
 
 from api.config import Config, TestConfig
-from api.models import db
+from api.models import User, db
 
 
 def create_app(testing=False):
@@ -20,8 +20,17 @@ def create_app(testing=False):
     config = Config if not testing else TestConfig
     app.app.config.from_object(config)
 
-    JWTManager(app.app)
-
     db.init_app(app.app)
+
+    jwt = JWTManager(app.app)
+
+    @jwt.user_identity_loader
+    def user_identity_lookup(user):
+        return user.id
+
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        identity = jwt_data["sub"]
+        return User.query.filter_by(id=identity).one_or_none()
 
     return app
