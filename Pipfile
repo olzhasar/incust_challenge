@@ -10,6 +10,8 @@ flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
 bcrypt = "*"
 pydantic = "*"
+pymysql = "*"
+cryptography = "*"
 
 [dev-packages]
 pytest = "*"
