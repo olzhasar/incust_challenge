@@ -4,7 +4,7 @@ from api.models import User
 class TestLogin:
     url = "/auth/login"
 
-    def test_login_ok(self, client, user_1):
+    def test_ok(self, client, user_1):
         response = client.post(
             self.url,
             json={
@@ -16,7 +16,7 @@ class TestLogin:
         assert response.status_code == 200
         assert "access_token" in response.json
 
-    def test_login_wrong_username(self, client, user_1):
+    def test_wrong_username(self, client, user_1):
         response = client.post(
             self.url,
             json={
@@ -27,7 +27,7 @@ class TestLogin:
 
         assert response.status_code == 401
 
-    def test_login_wrong_password(self, client, user_1, user_2):
+    def test_wrong_password(self, client, user_1, user_2):
         response = client.post(
             self.url,
             json={
@@ -42,7 +42,7 @@ class TestLogin:
 class TestSignup:
     url = "/auth/signup"
 
-    def test_signup_ok(self, client):
+    def test_ok(self, client):
         response = client.post(
             self.url,
             json={
@@ -53,11 +53,11 @@ class TestSignup:
 
         assert response.status_code == 201
 
-        user = User.query.filter_by(username="new_user").first()
+        user = User.query.filter_by(username="new_user").one_or_none()
         assert user is not None
         assert user.check_password("123qweasd")
 
-    def test_signup_username_taken(self, client, user_1):
+    def test_username_taken(self, client, user_1):
         response = client.post(
             self.url,
             json={
@@ -68,3 +68,49 @@ class TestSignup:
 
         assert response.status_code == 400
         assert response.json == {"msg": "Username is already taken"}
+
+
+class TestUpdate:
+    url = "/auth/update"
+
+    def test_unauthorized(self, client):
+        response = client.put(
+            self.url,
+            json={
+                "username": "new_username",
+                "password": "new_password",
+            },
+        )
+
+        assert response.status_code == 401
+
+    def test_ok(self, client, user_1, as_user_1):
+        response = as_user_1.put(
+            self.url,
+            json={
+                "username": "new_username",
+                "avatar_url": "https://example.com/new_image.jpg",
+            },
+        )
+
+        assert response.status_code == 200
+
+        from_db = User.query.filter_by(username="new_username").one_or_none()
+
+        assert from_db is not None
+        assert from_db.username == "new_username"
+        assert from_db.avatar_url == "https://example.com/new_image.jpg"
+
+    def test_change_username_to_existing(self, client, user_1, user_2, as_user_1):
+        response = as_user_1.put(
+            self.url,
+            json={
+                "username": user_2.username,
+                "avatar_url": "https://example.com/new_image.jpg",
+            },
+        )
+
+        assert response.status_code == 400
+
+        from_db = User.query.filter_by(id=user_1.id).one_or_none()
+        assert from_db.username == "user_1"

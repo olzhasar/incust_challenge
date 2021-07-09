@@ -1,12 +1,20 @@
-from pydantic import BaseModel
+from typing import Optional
+
+from pydantic import BaseModel, HttpUrl
 
 
-class UserInSchema(BaseModel):
+class UserCreateSchema(BaseModel):
     username: str
     password: str
+    avatar_url: Optional[HttpUrl]
 
 
-class UserSchema(UserInSchema):
+class UserChangeSchema(BaseModel):
+    username: Optional[str]
+    avatar_url: Optional[HttpUrl]
+
+
+class UserSchema(UserCreateSchema):
     id: int
 
     class Config:
