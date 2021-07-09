@@ -13,6 +13,19 @@ paths:
     post:
       operationId: "api.views.auth.login"
       summary: Login with username - password pair and obtain JWT Token
+      parameters:
+        - in: body
+          name: credentials
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+              password:
+                type: string
       responses:
         200:
           description: Access token
@@ -20,68 +33,104 @@ paths:
             type: object
             properties:
               access_token:
-                type: "string"
-                description: JWT token
+                type: string
 
   /auth/signup:
     post:
       operationId: "api.views.auth.signup"
-      summary: Login with username - password pair and obtain JWT Token
+      summary: Register new user
+      parameters:
+        - in: body
+          name: credentials
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+              avatar_url:
+                type: string
       responses:
         200:
-          description: Access token
+          description: User has been registered successfully
           schema:
             type: object
             properties:
-              access_token:
-                type: "string"
-                description: JWT token
+              id:
+                type: integer
+              username:
+                type: string
+              avatar_url:
+                type: string
 
   /auth/profile:
     put:
       operationId: "api.views.auth.update"
-      summary: Login with username - password pair and obtain JWT Token
-      responses:
-        200:
-          description: Access token
+      summary: Update profile information
+      parameters:
+        - in: body
+          name: credentials
           schema:
             type: object
             properties:
-              access_token:
-                type: "string"
-                description: JWT token
+              username:
+                type: string
+              avatar_url:
+                type: string
+      responses:
+        200:
+          description: Profile info has been updated successfully
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              avatar_url:
+                type: string
 
   /product_lists:
     get:
       operationId: "api.views.product_lists.read_all"
-      summary: Login with username - password pair and obtain JWT Token
+      summary: Get all product lists for authenticated user
       responses:
         200:
-          description: Access token
+          description: List of product lists
           schema:
             type: object
             properties:
-              access_token:
-                type: "string"
-                description: JWT token
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
 
     post:
       operationId: "api.views.product_lists.create"
-      summary: Login with username - password pair and obtain JWT Token
-      responses:
-        200:
-          description: Access token
+      summary: Product list has been created successfully
+      parameters:
+        - in: body
+          name: product_list
           schema:
-            type: object
-            properties:
-              access_token:
-                type: "string"
-                description: JWT token
+            $ref: '#/definitions/ProductList'
+
+      responses:
+        201:
+          description: Product list was created successfully
+          schema:
+            $ref: '#/definitions/ProductList'
 
   /product_lists/{list_id}:
     get:
       operationId: "api.views.product_lists.read_one"
-      summary: Login with username - password pair and obtain JWT Token
+      summary: Retrieve product list
       parameters:
         - name: list_id
           in: path
@@ -110,16 +159,12 @@ paths:
           required: false
       responses:
         200:
-          description: Access token
+          description: Product list
           schema:
-            type: object
-            properties:
-              access_token:
-                type: "string"
-                description: JWT token
+            $ref: '#/definitions/ProductList'
     delete:
       operationId: "api.views.product_lists.delete"
-      summary: Login with username - password pair and obtain JWT Token
+      summary: Delete product list
       parameters:
         - name: list_id
           in: path
@@ -127,11 +172,39 @@ paths:
           type: integer
           required: true
       responses:
-        200:
-          description: Access token
-          schema:
-            type: object
-            properties:
-              access_token:
-                type: "string"
-                description: JWT token
+        204:
+          description: Product list was deleted successfully
+
+
+definitions:
+  ProductList:
+    type: object
+    properties:
+      name:
+        type: string
+      products:
+        type: array
+        items:
+          type: object
+          required:
+            - sku
+            - name
+          properties:
+            sku:
+              type: string
+            name:
+              type: string
+            image_url:
+              type: string
+            prices:
+              type: array
+              items:
+                type: object
+                required:
+                  - value
+                  - currency_code
+                properties:
+                  value:
+                    type: number
+                  currency_code:
+                    type: string
