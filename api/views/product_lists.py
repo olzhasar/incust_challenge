@@ -76,5 +76,14 @@ def read_one(list_id: int):
 
 
 @jwt_required()
-def delete():
-    pass
+def delete(list_id: int):
+    user = get_current_user()
+    product_list = ProductList.query.get_or_404(list_id)
+
+    if product_list.user_id != user.id:
+        abort(401)
+
+    db.session.delete(product_list)
+    db.session.commit()
+
+    return "", 204

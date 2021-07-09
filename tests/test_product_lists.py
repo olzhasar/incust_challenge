@@ -201,7 +201,36 @@ class TestProductListReadOne:
 
         assert response.status_code == 404
 
-    def test_unauthorized(self, client):
-        response = client.get(self.url.format(999))
+    def test_unauthorized(self, client, product_list):
+        response = client.get(self.url.format(product_list.id))
+
+        assert response.status_code == 401
+
+    def test_other_user(self, product_list, as_other_user):
+        response = as_other_user.get(self.url.format(product_list.id))
+
+        assert response.status_code == 401
+
+
+class TestProductListDelete:
+    url = "/product_lists/{}"
+
+    def test_ok(self, as_user, product_list):
+        response = as_user.delete(self.url.format(product_list.id))
+
+        assert response.status_code == 204
+
+    def test_unexisting(self, as_user):
+        response = as_user.delete(self.url.format(999))
+
+        assert response.status_code == 404
+
+    def test_unauthorized(self, client, product_list):
+        response = client.delete(self.url.format(product_list.id))
+
+        assert response.status_code == 401
+
+    def test_other_user(self, product_list, as_other_user):
+        response = as_other_user.delete(self.url.format(product_list.id))
 
         assert response.status_code == 401
