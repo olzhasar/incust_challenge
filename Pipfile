@@ -9,6 +9,7 @@ connexion = {extras = ["swagger-ui"], version = "*"}
 flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
 bcrypt = "*"
+pydantic = "*"
 
 [dev-packages]
 pytest = "*"
