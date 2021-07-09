@@ -1,5 +1,9 @@
 from api.models import Product, ProductList, ProductPrice, db
-from api.schemas import ProductListCreateSchema, ProductListSchema
+from api.schemas import (
+    ProductListCreateSchema,
+    ProductListSchema,
+    ProductListShortSchema,
+)
 from connexion import request
 from flask import abort
 from flask_jwt_extended import get_current_user, jwt_required
@@ -51,12 +55,17 @@ def create():
 
 
 @jwt_required()
-def read_one():
-    pass
+def read_all():
+    user = get_current_user()
+
+    product_lists = ProductList.query.filter_by(user_id=user.id)
+
+    data = [ProductListShortSchema.from_orm(p).json() for p in product_lists]
+    return data, 200
 
 
 @jwt_required()
-def read_all():
+def read_one(list_id: int):
     pass
 
 

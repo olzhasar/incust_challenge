@@ -53,7 +53,7 @@ paths:
 
   /product_lists:
     get:
-      operationId: "api.views.product_lists.read_one"
+      operationId: "api.views.product_lists.read_all"
       summary: Login with username - password pair and obtain JWT Token
       responses:
         200:
