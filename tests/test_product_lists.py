@@ -116,3 +116,14 @@ class TestProductListCreate:
         assert not ProductList.query.filter_by(
             user_id=user_1.id, name="not_unique_list"
         ).one_or_none()
+
+    def test_invalid_request(self, client, user_1, as_user_1):
+        response = as_user_1.post(
+            self.url,
+            json={
+                "name": "invalid_list",
+                "products": [{}],
+            },
+        )
+
+        assert response.status_code == 400

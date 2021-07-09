@@ -12,7 +12,7 @@ def create():
     try:
         validated = ProductListCreateSchema(**request.json)
     except ValidationError as e:
-        return e.json(), 400
+        abort(400, str(e))
 
     user = get_current_user()
 
