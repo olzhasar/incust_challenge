@@ -1,4 +1,5 @@
-from typing import Optional
+from decimal import Decimal
+from typing import List, Optional
 
 from pydantic import BaseModel, HttpUrl
 
@@ -19,3 +20,31 @@ class UserSchema(UserCreateSchema):
 
     class Config:
         orm_mode = True
+
+
+class PriceSchema(BaseModel):
+    value: Decimal
+    currency_code: str
+
+
+class ProductCreateSchema(BaseModel):
+    sku: str
+    name: str
+    image_url: Optional[HttpUrl]
+
+    prices: List[PriceSchema] = []
+
+
+class ProductSchema(ProductCreateSchema):
+    id: int
+
+
+class ProductListCreateSchema(BaseModel):
+    name: str
+    products: List[ProductCreateSchema] = []
+
+
+class ProductListSchema(BaseModel):
+    id: int
+    name: str
+    products: List[ProductSchema] = []
