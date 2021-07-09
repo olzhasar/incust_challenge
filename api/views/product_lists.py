@@ -5,7 +5,7 @@ from api.schemas import (
     ProductListShortSchema,
 )
 from connexion import request
-from flask import abort
+from flask import abort, jsonify
 from flask_jwt_extended import get_current_user, jwt_required
 from pydantic import ValidationError
 from sqlalchemy import exc
@@ -60,13 +60,19 @@ def read_all():
 
     product_lists = ProductList.query.filter_by(user_id=user.id)
 
-    data = [ProductListShortSchema.from_orm(p).json() for p in product_lists]
-    return data, 200
+    data = [ProductListShortSchema.from_orm(p).dict() for p in product_lists]
+    return jsonify({"product_lists": data}), 200
 
 
 @jwt_required()
 def read_one(list_id: int):
-    pass
+    user = get_current_user()
+    product_list = ProductList.query.get_or_404(list_id)
+
+    if product_list.user_id != user.id:
+        abort(401)
+
+    return ProductListSchema.from_orm(product_list).dict(), 200
 
 
 @jwt_required()

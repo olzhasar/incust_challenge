@@ -127,3 +127,81 @@ class TestProductListCreate:
         )
 
         assert response.status_code == 400
+
+
+class TestProductListReadAll:
+    url = "/product_lists"
+
+    def test_ok(self, as_user_1, product_list):
+        response = as_user_1.get(self.url)
+
+        assert response.status_code == 200
+        assert response.json == {
+            "product_lists": [
+                {
+                    "id": product_list.id,
+                    "name": product_list.name,
+                }
+            ]
+        }
+
+    def test_no_product_lists(self, as_user_1):
+        response = as_user_1.get(self.url)
+
+        assert response.status_code == 200
+        assert response.json == {"product_lists": []}
+
+    def test_unauthorized(self, client):
+        response = client.get(self.url)
+
+        assert response.status_code == 401
+
+
+class TestProductListReadOne:
+    url = "/product_lists/{}"
+
+    @pytest.fixture
+    def response_data(self, product_list):
+        data = {
+            "id": product_list.id,
+            "name": product_list.name,
+            "products": [],
+        }
+
+        for product in product_list.products:
+            product_row = {
+                "id": product.id,
+                "sku": product.sku,
+                "name": product.name,
+                "image_url": product.image_url,
+                "prices": [],
+            }
+
+            for price in product.prices:
+                product_row["prices"].append(
+                    {
+                        "value": float(price.value),
+                        "currency_code": price.currency_code,
+                    }
+                )
+
+            data["products"].append(product_row)
+
+        return data
+
+    def test_ok(self, as_user_1, user_1, product_list, product, response_data):
+        response = as_user_1.get(self.url.format(product_list.id))
+
+        assert response.status_code == 200
+
+        assert response.json == response_data
+
+    def test_unexisting(self, as_user_1):
+        response = as_user_1.get(self.url.format(999))
+
+        assert response.status_code == 404
+
+    def test_unauthorized(self, client):
+        response = client.get(self.url.format(999))
+
+        assert response.status_code == 401

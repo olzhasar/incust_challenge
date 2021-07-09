@@ -77,3 +77,23 @@ paths:
               access_token:
                 type: "string"
                 description: JWT token
+
+  /product_lists/{list_id}:
+    get:
+      operationId: "api.views.product_lists.read_one"
+      summary: Login with username - password pair and obtain JWT Token
+      parameters:
+        - name: list_id
+          in: path
+          description: ID of product list
+          type: integer
+          required: true
+      responses:
+        200:
+          description: Access token
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: "string"
+                description: JWT token

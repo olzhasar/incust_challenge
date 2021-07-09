@@ -3,7 +3,7 @@ from api import create_app
 from api.models import db
 from flask_jwt_extended import create_access_token
 
-from tests.factories import UserFactory
+from tests import factories
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -29,7 +29,7 @@ def client(app):
 
 
 def _create_user(username: str, password: str, avatar_url: str = None):
-    user = UserFactory(username=username, avatar_url=avatar_url)
+    user = factories.UserFactory(username=username, avatar_url=avatar_url)
     user.set_password("123qweasd")
 
     db.session.add(user)
@@ -57,3 +57,28 @@ def as_user_1(app, user_1):
     with app.test_client() as client:
         client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
         yield client
+
+
+@pytest.fixture
+def product_list(user_1):
+    obj = factories.ProductListFactory(user=user_1)
+
+    db.session.add(obj)
+    db.session.commit()
+
+    return obj
+
+
+@pytest.fixture
+def product(product_list):
+    obj = factories.ProductFactory(product_list=product_list)
+
+    db.session.add(obj)
+    db.session.flush()
+
+    prices = factories.ProductPriceFactory.create_batch(2, product=obj)
+
+    db.session.add_all(prices)
+    db.session.commit()
+
+    return obj

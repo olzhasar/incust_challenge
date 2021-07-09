@@ -54,9 +54,19 @@ class ProductListShortSchema(BaseModel):
     id: int
     name: Optional[str]
 
+    class Config:
+        orm_mode = True
+
 
 class ProductListSchema(ProductListShortSchema):
     products: List[ProductSchema] = []
+
+    class Config:
+        orm_mode = True
+
+
+class ProductListResponseSchema(BaseModel):
+    product_lists: List[ProductListShortSchema] = []
 
     class Config:
         orm_mode = True
