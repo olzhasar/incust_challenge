@@ -16,6 +16,7 @@ pytest = "*"
 isort = "*"
 flake8 = "*"
 black = "*"
+factory-boy = "*"
 
 [requires]
 python_version = "3.6"
