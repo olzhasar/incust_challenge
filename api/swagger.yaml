@@ -37,9 +37,36 @@ paths:
                 type: "string"
                 description: JWT token
 
-  /auth/update:
+  /auth/profile:
     put:
       operationId: "api.views.auth.update"
+      summary: Login with username - password pair and obtain JWT Token
+      responses:
+        200:
+          description: Access token
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: "string"
+                description: JWT token
+
+  /product_lists:
+    get:
+      operationId: "api.views.product_lists.read_one"
+      summary: Login with username - password pair and obtain JWT Token
+      responses:
+        200:
+          description: Access token
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: "string"
+                description: JWT token
+
+    post:
+      operationId: "api.views.product_lists.create"
       summary: Login with username - password pair and obtain JWT Token
       responses:
         200:
