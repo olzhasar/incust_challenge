@@ -1,20 +1,25 @@
 import pytest
 from api import create_app
-from api.models import User, db
+from api.models import db
 from flask_jwt_extended import create_access_token
 
+from tests.factories import UserFactory
 
-@pytest.fixture(scope="session")
+
+@pytest.fixture(scope="session", autouse=True)
 def app():
     connexion_app = create_app(testing=True)
     app = connexion_app.app
 
     with app.app_context():
-        db.create_all()
-
         yield app
 
-        db.drop_all()
+
+@pytest.fixture(autouse=True)
+def session(app):
+    db.create_all()
+    yield
+    db.drop_all()
 
 
 @pytest.fixture(scope="session")
@@ -24,8 +29,8 @@ def client(app):
 
 
 def _create_user(username: str, password: str, avatar_url: str = None):
-    user = User(username=username, avatar_url=avatar_url)
-    user.set_password(password)
+    user = UserFactory(username=username, avatar_url=avatar_url)
+    user.set_password("123qweasd")
 
     db.session.add(user)
     db.session.commit()
@@ -33,19 +38,19 @@ def _create_user(username: str, password: str, avatar_url: str = None):
     return user
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def user_1():
     user = _create_user("user_1", "123qweasd", "http://example.com/avatar.jpg")
     yield user
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def user_2():
     user = _create_user("user_2", "zxcasd123", "http://example.com/avatar.jpg")
     yield user
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def as_user_1(app, user_1):
     token = create_access_token(identity=user_1)
 
