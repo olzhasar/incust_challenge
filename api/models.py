@@ -6,9 +6,9 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
-    username = db.Column(db.String, nullable=False, unique=True)
-    password = db.Column(db.String, nullable=False)
-    avatar_url = db.Column(db.String, nullable=True)
+    username = db.Column(db.String(50), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
+    avatar_url = db.Column(db.String(255), nullable=True)
 
     def set_password(self, raw_password: str):
         salt = bcrypt.gensalt()
@@ -20,7 +20,7 @@ class User(db.Model):
 
 class ProductList(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
-    name = db.Column(db.String, nullable=True)
+    name = db.Column(db.String(50), nullable=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user = db.relationship("User", backref=db.backref("product_lists", lazy=True))
@@ -28,9 +28,9 @@ class ProductList(db.Model):
 
 class Product(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
-    sku = db.Column(db.String, nullable=False)
-    name = db.Column(db.String, nullable=False)
-    image_url = db.Column(db.String, nullable=True)
+    sku = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    image_url = db.Column(db.String(255), nullable=True)
 
     product_list_id = db.Column(
         db.Integer, db.ForeignKey("product_list.id"), nullable=False
