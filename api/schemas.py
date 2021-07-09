@@ -14,6 +14,9 @@ class UserChangeSchema(BaseModel):
     username: Optional[str]
     avatar_url: Optional[HttpUrl]
 
+    class Config:
+        orm_mode = True
+
 
 class UserSchema(UserCreateSchema):
     id: int

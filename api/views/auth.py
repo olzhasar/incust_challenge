@@ -28,8 +28,11 @@ def signup():
     except ValidationError as e:
         abort(400, str(e))
 
-    user = User(username=validated.username)
-    user.set_password(validated.password)
+    data = validated.dict()
+    password = data.pop("password")
+
+    user = User(**data)
+    user.set_password(password)
 
     db.session.add(user)
 
@@ -62,4 +65,4 @@ def update():
         db.session.rollback()
         abort(400, "Username is already taken")
 
-    return UserSchema.from_orm(user).json(), 200
+    return UserChangeSchema.from_orm(user).json(), 200

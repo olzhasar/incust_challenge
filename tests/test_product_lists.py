@@ -139,7 +139,7 @@ class TestProductListReadAll:
 
         assert response.status_code == 200
         assert response.json == {
-            "product_lists": [
+            "results": [
                 {
                     "id": product_list.id,
                     "name": product_list.name,
@@ -151,7 +151,7 @@ class TestProductListReadAll:
         response = as_user.get(self.url)
 
         assert response.status_code == 200
-        assert response.json == {"product_lists": []}
+        assert response.json == {"results": []}
 
     def test_unauthorized(self, client):
         response = client.get(self.url)

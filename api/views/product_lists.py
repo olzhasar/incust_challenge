@@ -61,7 +61,7 @@ def read_all():
     product_lists = ProductList.query.filter_by(user_id=user.id)
 
     data = [ProductListShortSchema.from_orm(p).dict() for p in product_lists]
-    return jsonify({"product_lists": data}), 200
+    return jsonify({"results": data}), 200
 
 
 @jwt_required()
