@@ -10,6 +10,8 @@ class Config:
         "DATABASE_URL", "mysql://incust:incust@localhost/incust_db"
     )
 
+    PAGINATION = 10
+
 
 class TestConfig(Config):
     DEBUG = True

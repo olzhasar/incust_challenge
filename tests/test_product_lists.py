@@ -261,6 +261,23 @@ class TestProductListReadOne:
 
         assert set(p["name"] for p in response.json["products"]) == {"abc", "abcdef"}
 
+    def test_pagination(self, app, as_user, product_list, products):
+        app.config["PAGINATION"] = 2
+
+        response = as_user.get(self.url.format(product_list.id) + "?page=2")
+
+        assert response.status_code == 200
+
+        products = response.json["products"]
+
+        assert len(products) == 1
+        assert products[0]["sku"] == "456"
+
+    def test_pagination_non_existent_page(self, app, as_user, product_list, products):
+        response = as_user.get(self.url.format(product_list.id) + "?page=999")
+
+        assert response.status_code == 404
+
     def test_unexisting(self, as_user):
         response = as_user.get(self.url.format(999))
 

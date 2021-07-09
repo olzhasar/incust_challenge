@@ -5,7 +5,7 @@ from api.schemas import (
     ProductListShortSchema,
 )
 from connexion import request
-from flask import abort, jsonify
+from flask import abort, current_app, jsonify
 from flask_jwt_extended import get_current_user, jwt_required
 from pydantic import ValidationError
 from sqlalchemy import exc
@@ -66,7 +66,11 @@ def read_all():
 
 @jwt_required()
 def read_one(
-    list_id: int, sort_by: str = None, product_sku: str = None, product_name: str = None
+    list_id: int,
+    sort_by: str = None,
+    product_sku: str = None,
+    product_name: str = None,
+    page: int = None,
 ):
     user = get_current_user()
 
@@ -88,7 +92,8 @@ def read_one(
     elif sort_by == "name":
         query = query.order_by(Product.name)
 
-    products = query.all()
+    per_page = current_app.config["PAGINATION"]
+    products = query.paginate(page=page, per_page=per_page).items
 
     schema = ProductListSchema(
         id=product_list.id,
