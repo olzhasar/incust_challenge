@@ -22,6 +22,9 @@ def create_app(testing=False):
 
     db.init_app(app.app)
 
+    with app.app.app_context():
+        db.create_all()
+
     jwt = JWTManager(app.app)
 
     @jwt.user_identity_loader
