@@ -1,96 +1,98 @@
-swagger: "2.0"
+openapi: 3.0.0
 info:
   title: Product lists API
   description: Test challenge for Incust
   version: "1.0.0"
-consumes:
-  - "application/json"
-produces:
-  - "application/json"
 
 paths:
   /auth/login:
     post:
       operationId: "api.views.auth.login"
       summary: Login with username - password pair and obtain JWT Token
-      parameters:
-        - in: body
-          name: credentials
-          schema:
-            type: object
-            required:
-              - username
-              - password
-            properties:
-              username:
-                type: string
-              password:
-                type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
       responses:
         200:
           description: Access token
-          schema:
-            type: object
-            properties:
-              access_token:
-                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
 
   /auth/signup:
     post:
       operationId: "api.views.auth.signup"
       summary: Register new user
-      parameters:
-        - in: body
-          name: credentials
-          schema:
-            type: object
-            required:
-              - username
-              - password
-            properties:
-              username:
-                type: string
-              password:
-                type: string
-              avatar_url:
-                type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                avatar_url:
+                  type: string
       responses:
         200:
           description: User has been registered successfully
-          schema:
-            type: object
-            properties:
-              id:
-                type: integer
-              username:
-                type: string
-              avatar_url:
-                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  avatar_url:
+                    type: string
 
   /auth/profile:
     put:
       operationId: "api.views.auth.update"
       summary: Update profile information
-      parameters:
-        - in: body
-          name: credentials
-          schema:
-            type: object
-            properties:
-              username:
-                type: string
-              avatar_url:
-                type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                avatar_url:
+                  type: string
       responses:
         200:
           description: Profile info has been updated successfully
-          schema:
-            type: object
-            properties:
-              username:
-                type: string
-              avatar_url:
-                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  avatar_url:
+                    type: string
 
   /product_lists:
     get:
@@ -99,33 +101,37 @@ paths:
       responses:
         200:
           description: List of product lists
-          schema:
-            type: object
-            properties:
-              results:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
 
     post:
       operationId: "api.views.product_lists.create"
       summary: Product list has been created successfully
-      parameters:
-        - in: body
-          name: product_list
-          schema:
-            $ref: '#/definitions/ProductList'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductList'
 
       responses:
         201:
           description: Product list was created successfully
-          schema:
-            $ref: '#/definitions/ProductList'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductList'
 
   /product_lists/{list_id}:
     get:
@@ -135,33 +141,40 @@ paths:
         - name: list_id
           in: path
           description: ID of product list
-          type: integer
           required: true
+          schema:
+            type: integer
         - name: sort_by
           description: sort records by
           in: query
-          type: string
           required: false
+          schema:
+            type: string
         - name: product_sku
           description: filter by product's sku
           in: query
-          type: string
           required: false
+          schema:
+            type: string
         - name: product_name
           description: filter by product's name
           in: query
-          type: string
           required: false
+          schema:
+            type: string
         - name: page
           description: results page number
           in: query
-          type: integer
           required: false
+          schema:
+            type: integer
       responses:
         200:
           description: Product list
-          schema:
-            $ref: '#/definitions/ProductList'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductList'
     delete:
       operationId: "api.views.product_lists.delete"
       summary: Delete product list
@@ -169,42 +182,44 @@ paths:
         - name: list_id
           in: path
           description: ID of product list
-          type: integer
           required: true
+          schema:
+            type: integer
       responses:
         204:
           description: Product list was deleted successfully
 
 
-definitions:
-  ProductList:
-    type: object
-    properties:
-      name:
-        type: string
-      products:
-        type: array
-        items:
-          type: object
-          required:
-            - sku
-            - name
-          properties:
-            sku:
-              type: string
-            name:
-              type: string
-            image_url:
-              type: string
-            prices:
-              type: array
-              items:
-                type: object
-                required:
-                  - value
-                  - currency_code
-                properties:
-                  value:
-                    type: number
-                  currency_code:
-                    type: string
+components:
+  schemas:
+    ProductList:
+      type: object
+      properties:
+        name:
+          type: string
+        products:
+          type: array
+          items:
+            type: object
+            required:
+              - sku
+              - name
+            properties:
+              sku:
+                type: string
+              name:
+                type: string
+              image_url:
+                type: string
+              prices:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - value
+                    - currency_code
+                  properties:
+                    value:
+                      type: number
+                    currency_code:
+                      type: string
