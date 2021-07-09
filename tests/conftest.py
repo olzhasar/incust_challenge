@@ -39,20 +39,20 @@ def _create_user(username: str, password: str, avatar_url: str = None):
 
 
 @pytest.fixture
-def user_1():
-    user = _create_user("user_1", "123qweasd", "http://example.com/avatar.jpg")
+def user():
+    user = _create_user("user", "123qweasd", "http://example.com/avatar.jpg")
     yield user
 
 
 @pytest.fixture
-def user_2():
-    user = _create_user("user_2", "zxcasd123", "http://example.com/avatar.jpg")
+def other_user():
+    user = _create_user("other_user", "zxcasd123", "http://example.com/avatar.jpg")
     yield user
 
 
 @pytest.fixture
-def as_user_1(app, user_1):
-    token = create_access_token(identity=user_1)
+def as_user(app, user):
+    token = create_access_token(identity=user)
 
     with app.test_client() as client:
         client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
@@ -60,8 +60,17 @@ def as_user_1(app, user_1):
 
 
 @pytest.fixture
-def product_list(user_1):
-    obj = factories.ProductListFactory(user=user_1)
+def as_other_user(app, other_user):
+    token = create_access_token(identity=other_user)
+
+    with app.test_client() as client:
+        client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
+        yield client
+
+
+@pytest.fixture
+def product_list(user):
+    obj = factories.ProductListFactory(user=user)
 
     db.session.add(obj)
     db.session.commit()

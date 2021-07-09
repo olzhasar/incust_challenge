@@ -4,11 +4,11 @@ from api.models import User
 class TestLogin:
     url = "/auth/login"
 
-    def test_ok(self, client, user_1):
+    def test_ok(self, client, user):
         response = client.post(
             self.url,
             json={
-                "username": user_1.username,
+                "username": user.username,
                 "password": "123qweasd",
             },
         )
@@ -16,7 +16,7 @@ class TestLogin:
         assert response.status_code == 200
         assert "access_token" in response.json
 
-    def test_wrong_username(self, client, user_1):
+    def test_wrong_username(self, client, user):
         response = client.post(
             self.url,
             json={
@@ -28,11 +28,11 @@ class TestLogin:
         assert response.status_code == 401
         assert response.json["detail"] == "Invalid credentials"
 
-    def test_wrong_password(self, client, user_1, user_2):
+    def test_wrong_password(self, client, user, other_user):
         response = client.post(
             self.url,
             json={
-                "username": user_1.username,
+                "username": user.username,
                 "password": "zxcasd123",
             },
         )
@@ -59,11 +59,11 @@ class TestSignup:
         assert user is not None
         assert user.check_password("123qweasd")
 
-    def test_username_taken(self, client, user_1):
+    def test_username_taken(self, client, user):
         response = client.post(
             self.url,
             json={
-                "username": user_1.username,
+                "username": user.username,
                 "password": "123qweasd",
             },
         )
@@ -86,8 +86,8 @@ class TestUpdate:
 
         assert response.status_code == 401
 
-    def test_ok(self, client, user_1, as_user_1):
-        response = as_user_1.put(
+    def test_ok(self, client, user, as_user):
+        response = as_user.put(
             self.url,
             json={
                 "username": "new_username",
@@ -103,11 +103,11 @@ class TestUpdate:
         assert from_db.username == "new_username"
         assert from_db.avatar_url == "https://example.com/new_image.jpg"
 
-    def test_change_username_to_existing(self, client, user_1, user_2, as_user_1):
-        response = as_user_1.put(
+    def test_change_username_to_existing(self, client, user, other_user, as_user):
+        response = as_user.put(
             self.url,
             json={
-                "username": user_2.username,
+                "username": other_user.username,
                 "avatar_url": "https://example.com/new_image.jpg",
             },
         )
@@ -115,5 +115,5 @@ class TestUpdate:
         assert response.status_code == 400
         assert response.json["detail"] == "Username is already taken"
 
-        from_db = User.query.filter_by(id=user_1.id).one_or_none()
-        assert from_db.username != user_2.username
+        from_db = User.query.filter_by(id=user.id).one_or_none()
+        assert from_db.username != other_user.username

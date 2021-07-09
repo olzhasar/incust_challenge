@@ -45,8 +45,8 @@ class TestProductListCreate:
     def products_data(self, product_1_data, product_2_data):
         return [product_1_data, product_2_data]
 
-    def test_ok(self, client, user_1, as_user_1, products_data):
-        response = as_user_1.post(
+    def test_ok(self, client, user, as_user, products_data):
+        response = as_user.post(
             self.url,
             json={
                 "name": "My list",
@@ -56,7 +56,7 @@ class TestProductListCreate:
 
         assert response.status_code == 201
 
-        product_list = ProductList.query.filter_by(user_id=user_1.id).one_or_none()
+        product_list = ProductList.query.filter_by(user_id=user.id).one_or_none()
         assert product_list.name == "My list"
 
         for product, data in zip(product_list.products, products_data):
@@ -68,8 +68,8 @@ class TestProductListCreate:
                 assert price.value == price_data["value"]
                 assert price.currency_code == price_data["currency_code"]
 
-    def test_skus_not_unique(self, client, user_1, as_user_1, product_1_data):
-        response = as_user_1.post(
+    def test_skus_not_unique(self, client, as_user, user, product_1_data):
+        response = as_user.post(
             self.url,
             json={
                 "name": "not_unique_list",
@@ -84,10 +84,10 @@ class TestProductListCreate:
         )
 
         assert not ProductList.query.filter_by(
-            user_id=user_1.id, name="not_unique_list"
+            user_id=user.id, name="not_unique_list"
         ).one_or_none()
 
-    def test_prices_not_unique(self, client, user_1, as_user_1, product_1_data):
+    def test_prices_not_unique(self, client, user, as_user, product_1_data):
         product_1_data["prices"] = [
             {
                 "currency_code": "USD",
@@ -99,7 +99,7 @@ class TestProductListCreate:
             },
         ]
 
-        response = as_user_1.post(
+        response = as_user.post(
             self.url,
             json={
                 "name": "not_unique_list",
@@ -114,11 +114,11 @@ class TestProductListCreate:
         )
 
         assert not ProductList.query.filter_by(
-            user_id=user_1.id, name="not_unique_list"
+            user_id=user.id, name="not_unique_list"
         ).one_or_none()
 
-    def test_invalid_request(self, client, user_1, as_user_1):
-        response = as_user_1.post(
+    def test_invalid_request(self, client, user, as_user):
+        response = as_user.post(
             self.url,
             json={
                 "name": "invalid_list",
@@ -132,8 +132,8 @@ class TestProductListCreate:
 class TestProductListReadAll:
     url = "/product_lists"
 
-    def test_ok(self, as_user_1, product_list):
-        response = as_user_1.get(self.url)
+    def test_ok(self, as_user, product_list):
+        response = as_user.get(self.url)
 
         assert response.status_code == 200
         assert response.json == {
@@ -145,8 +145,8 @@ class TestProductListReadAll:
             ]
         }
 
-    def test_no_product_lists(self, as_user_1):
-        response = as_user_1.get(self.url)
+    def test_no_product_lists(self, as_user):
+        response = as_user.get(self.url)
 
         assert response.status_code == 200
         assert response.json == {"product_lists": []}
@@ -189,15 +189,15 @@ class TestProductListReadOne:
 
         return data
 
-    def test_ok(self, as_user_1, user_1, product_list, product, response_data):
-        response = as_user_1.get(self.url.format(product_list.id))
+    def test_ok(self, as_user, user, product_list, product, response_data):
+        response = as_user.get(self.url.format(product_list.id))
 
         assert response.status_code == 200
 
         assert response.json == response_data
 
-    def test_unexisting(self, as_user_1):
-        response = as_user_1.get(self.url.format(999))
+    def test_unexisting(self, as_user):
+        response = as_user.get(self.url.format(999))
 
         assert response.status_code == 404
 
