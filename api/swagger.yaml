@@ -22,3 +22,17 @@ paths:
               access_token:
                 type: "string"
                 description: JWT token
+
+  /auth/signup:
+    post:
+      operationId: "api.auth.signup"
+      summary: Login with username - password pair and obtain JWT Token
+      responses:
+        200:
+          description: Access token
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: "string"
+                description: JWT token
