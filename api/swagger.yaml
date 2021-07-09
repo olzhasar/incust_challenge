@@ -88,6 +88,21 @@ paths:
           description: ID of product list
           type: integer
           required: true
+        - name: sort_by
+          description: sort records by
+          in: query
+          type: string
+          required: false
+        - name: product_sku
+          description: filter by product's sku
+          in: query
+          type: string
+          required: false
+        - name: product_name
+          description: filter by product's name
+          in: query
+          type: string
+          required: false
       responses:
         200:
           description: Access token

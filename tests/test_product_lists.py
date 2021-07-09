@@ -1,5 +1,7 @@
 import pytest
-from api.models import ProductList
+from api.models import ProductList, db
+
+from tests import factories
 
 
 class TestProductListCreate:
@@ -161,6 +163,37 @@ class TestProductListReadOne:
     url = "/product_lists/{}"
 
     @pytest.fixture
+    def products(self, product_list):
+        _products = [
+            factories.ProductFactory(
+                product_list=product_list,
+                sku="789",
+                name="abc",
+            ),
+            factories.ProductFactory(
+                product_list=product_list,
+                sku="123",
+                name="def",
+            ),
+            factories.ProductFactory(
+                product_list=product_list,
+                sku="456",
+                name="abcdef",
+            ),
+        ]
+
+        for product in _products:
+            db.session.add(product)
+            db.session.flush()
+
+            prices = factories.ProductPriceFactory.create_batch(2, product=product)
+
+            db.session.add_all(prices)
+            db.session.commit()
+
+        return _products
+
+    @pytest.fixture
     def response_data(self, product_list):
         data = {
             "id": product_list.id,
@@ -189,12 +222,44 @@ class TestProductListReadOne:
 
         return data
 
-    def test_ok(self, as_user, user, product_list, product, response_data):
+    def test_ok(self, as_user, user, product_list, products, response_data):
         response = as_user.get(self.url.format(product_list.id))
 
         assert response.status_code == 200
 
         assert response.json == response_data
+
+    @pytest.mark.parametrize(
+        "sort_by, expected_order",
+        [
+            ("sku", ["123", "456", "789"]),
+            ("name", ["789", "456", "123"]),
+        ],
+    )
+    def test_sort_by(self, as_user, product_list, products, sort_by, expected_order):
+        response = as_user.get(self.url.format(product_list.id) + f"?sort_by={sort_by}")
+
+        assert response.status_code == 200
+
+        order = [p["sku"] for p in response.json["products"]]
+        assert order == expected_order
+
+    def test_filter_by_sku(self, as_user, product_list, products):
+        response = as_user.get(self.url.format(product_list.id) + "?product_sku=123")
+
+        assert response.status_code == 200
+
+        products = response.json["products"]
+
+        assert len(products) == 1
+        assert products[0]["sku"] == "123"
+
+    def test_filter_by_name(self, as_user, product_list, products):
+        response = as_user.get(self.url.format(product_list.id) + "?product_name=abc")
+
+        assert response.status_code == 200
+
+        assert set(p["name"] for p in response.json["products"]) == {"abc", "abcdef"}
 
     def test_unexisting(self, as_user):
         response = as_user.get(self.url.format(999))

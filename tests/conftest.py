@@ -76,18 +76,3 @@ def product_list(user):
     db.session.commit()
 
     return obj
-
-
-@pytest.fixture
-def product(product_list):
-    obj = factories.ProductFactory(product_list=product_list)
-
-    db.session.add(obj)
-    db.session.flush()
-
-    prices = factories.ProductPriceFactory.create_batch(2, product=obj)
-
-    db.session.add_all(prices)
-    db.session.commit()
-
-    return obj

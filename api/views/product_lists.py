@@ -65,14 +65,38 @@ def read_all():
 
 
 @jwt_required()
-def read_one(list_id: int):
+def read_one(
+    list_id: int, sort_by: str = None, product_sku: str = None, product_name: str = None
+):
     user = get_current_user()
+
     product_list = ProductList.query.get_or_404(list_id)
 
     if product_list.user_id != user.id:
         abort(401)
 
-    return ProductListSchema.from_orm(product_list).dict(), 200
+    query = Product.query.filter_by(product_list_id=product_list.id)
+
+    if product_name:
+        query = query.filter(Product.name.like(f"%{product_name}%"))
+
+    if product_sku:
+        query = query.filter_by(sku=product_sku)
+
+    if sort_by == "sku":
+        query = query.order_by(Product.sku)
+    elif sort_by == "name":
+        query = query.order_by(Product.name)
+
+    products = query.all()
+
+    schema = ProductListSchema(
+        id=product_list.id,
+        name=product_list.name,
+        products=products,
+    )
+
+    return schema.dict(), 200
 
 
 @jwt_required()
