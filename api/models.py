@@ -21,6 +21,7 @@ class User(db.Model):
 class ProductList(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
     name = db.Column(db.String, nullable=True)
+
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     user = db.relationship("User", backref=db.backref("product_lists", lazy=True))
 
@@ -30,6 +31,7 @@ class Product(db.Model):
     sku = db.Column(db.String, nullable=False)
     name = db.Column(db.String, nullable=False)
     image_url = db.Column(db.String, nullable=True)
+
     product_list_id = db.Column(
         db.Integer, db.ForeignKey("product_list.id"), nullable=False
     )
@@ -43,7 +45,8 @@ class Product(db.Model):
 class ProductPrice(db.Model):
     value = db.Column(db.Numeric(10, 2), nullable=False)
     currency_code = db.Column(db.String(4), nullable=False)
+
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
     product = db.relationship("Product", backref=db.backref("prices", lazy=True))
 
-    __table_args__ = (db.PrimaryKeyConstraint("value", "currency_code"),)
+    __table_args__ = (db.PrimaryKeyConstraint("currency_code", "product_id"),)
