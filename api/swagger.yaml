@@ -1,4 +1,5 @@
 openapi: 3.0.0
+
 info:
   title: Product lists API
   description: Test challenge for Incust
@@ -98,6 +99,8 @@ paths:
     get:
       operationId: "api.views.product_lists.read_all"
       summary: Get all product lists for authenticated user
+      security:
+        - jwt: []
       responses:
         200:
           description: List of product lists
@@ -119,6 +122,8 @@ paths:
     post:
       operationId: "api.views.product_lists.create"
       summary: Product list has been created successfully
+      security:
+        - jwt: []
       requestBody:
         content:
           application/json:
@@ -137,6 +142,8 @@ paths:
     get:
       operationId: "api.views.product_lists.read_one"
       summary: Retrieve product list
+      security:
+        - jwt: []
       parameters:
         - name: list_id
           in: path
@@ -178,6 +185,8 @@ paths:
     delete:
       operationId: "api.views.product_lists.delete"
       summary: Delete product list
+      security:
+        - jwt: []
       parameters:
         - name: list_id
           in: path
