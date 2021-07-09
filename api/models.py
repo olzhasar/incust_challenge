@@ -44,6 +44,6 @@ class ProductPrice(db.Model):
     value = db.Column(db.Numeric(10, 2), nullable=False)
     currency_code = db.Column(db.String(4), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
-    product = db.relationship("User", backref=db.backref("prices", lazy=True))
+    product = db.relationship("Product", backref=db.backref("prices", lazy=True))
 
     __table_args__ = (db.PrimaryKeyConstraint("value", "currency_code"),)
