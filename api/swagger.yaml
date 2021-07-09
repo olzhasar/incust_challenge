@@ -223,3 +223,10 @@ components:
                       type: number
                     currency_code:
                       type: string
+
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: flask_jwt_extended.decode_token
