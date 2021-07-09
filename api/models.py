@@ -1,12 +1,13 @@
 import bcrypt
 from flask_sqlalchemy import SQLAlchemy
+from pydantic import BaseModel
 
 db = SQLAlchemy()
 
 
 class User(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
-    name = db.Column(db.String, nullable=False, index=True)
+    username = db.Column(db.String, nullable=False, index=True)
     password = db.Column(db.String, nullable=False)
 
     def set_password(self, raw_password: str):
@@ -15,3 +16,8 @@ class User(db.Model):
 
     def check_password(self, password: str):
         return bcrypt.checkpw(password.encode(), self.password.encode())
+
+
+class UserSchema(BaseModel):
+    username: str
+    password: str

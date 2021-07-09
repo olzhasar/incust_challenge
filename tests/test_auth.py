@@ -5,7 +5,7 @@ class TestLogin:
         response = client.post(
             self.url,
             json={
-                "username": user_1.name,
+                "username": user_1.username,
                 "password": "123qweasd",
             },
         )
@@ -28,7 +28,7 @@ class TestLogin:
         response = client.post(
             self.url,
             json={
-                "username": user_1.name,
+                "username": user_1.username,
                 "password": "zxcasd123",
             },
         )

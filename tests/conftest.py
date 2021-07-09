@@ -22,8 +22,8 @@ def client(app):
         yield client
 
 
-def _create_user(name: str, password: str):
-    user = User(name=name)
+def _create_user(username: str, password: str):
+    user = User(username=username)
     user.set_password(password)
 
     db.session.add(user)
