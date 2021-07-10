@@ -7,7 +7,7 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", "mysql://incust:incust@localhost/incust_db"
+        "DATABASE_URL", "mysql+pymysql://incust:incust@localhost/incust"
     )
 
     PAGINATION = 10
