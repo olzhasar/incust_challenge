@@ -1,25 +1,24 @@
 from decimal import Decimal
 from typing import List, Optional
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, validator
 
 
 class UserCreateSchema(BaseModel):
     username: str
     password: str
-    avatar_url: Optional[HttpUrl]
 
 
-class UserChangeSchema(BaseModel):
-    username: Optional[str]
-    avatar_url: Optional[HttpUrl]
-
-    class Config:
-        orm_mode = True
-
-
-class UserSchema(UserCreateSchema):
+class UserSchema(BaseModel):
     id: int
+    username: str
+    avatar: Optional[str]
+
+    @validator("avatar", pre=True)
+    def make_avatar_url(cls, v):
+        if v:
+            return f"/media/{v}"
+        return v
 
     class Config:
         orm_mode = True

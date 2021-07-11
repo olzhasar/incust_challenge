@@ -1,3 +1,6 @@
+import os
+from io import BytesIO
+
 from api.models import User
 
 
@@ -47,10 +50,12 @@ class TestSignup:
     def test_ok(self, client):
         response = client.post(
             self.url,
-            json={
+            data={
                 "username": "new_user",
                 "password": "123qweasd",
+                "avatar": (BytesIO(b"avatar.jpg"), "avatar.jpg"),
             },
+            content_type="multipart/form-data",
         )
 
         assert response.status_code == 201
@@ -58,14 +63,25 @@ class TestSignup:
         user = User.query.filter_by(username="new_user").one_or_none()
         assert user is not None
         assert user.check_password("123qweasd")
+        assert user.avatar == "avatar.jpg"
+
+        assert response.json == {
+            "id": user.id,
+            "username": user.username,
+            "avatar": "/media/avatar.jpg",
+        }
+
+        assert os.path.exists(user.avatar_filepath)
 
     def test_username_taken(self, client, user):
         response = client.post(
             self.url,
-            json={
+            data={
                 "username": user.username,
                 "password": "123qweasd",
+                "avatar": (BytesIO(b"avatar.jpg"), "avatar.jpg"),
             },
+            content_type="multipart/form-data",
         )
 
         assert response.status_code == 400
@@ -78,21 +94,25 @@ class TestUpdate:
     def test_unauthorized(self, client):
         response = client.put(
             self.url,
-            json={
+            data={
                 "username": "new_username",
-                "password": "new_password",
             },
+            content_type="multipart/form-data",
         )
 
         assert response.status_code == 401
 
     def test_ok(self, client, user, as_user):
+        old_avatar_path = user.avatar_filepath
+        assert os.path.exists(old_avatar_path)
+
         response = as_user.put(
             self.url,
-            json={
+            data={
                 "username": "new_username",
-                "avatar_url": "https://example.com/new_image.jpg",
+                "avatar": (BytesIO(b"new_avatar.jpg"), "new_avatar.jpg"),
             },
+            content_type="multipart/form-data",
         )
 
         assert response.status_code == 200
@@ -101,15 +121,25 @@ class TestUpdate:
 
         assert from_db is not None
         assert from_db.username == "new_username"
-        assert from_db.avatar_url == "https://example.com/new_image.jpg"
+        assert from_db.avatar == "new_avatar.jpg"
+
+        assert os.path.exists(from_db.avatar_filepath)
+        assert not os.path.exists(old_avatar_path)
+
+        assert response.json == {
+            "id": from_db.id,
+            "username": from_db.username,
+            "avatar": "/media/new_avatar.jpg",
+        }
 
     def test_change_username_to_existing(self, client, user, other_user, as_user):
         response = as_user.put(
             self.url,
-            json={
+            data={
                 "username": other_user.username,
-                "avatar_url": "https://example.com/new_image.jpg",
+                "avatar": (BytesIO(b"new_avatar.jpg"), "new_avatar.jpg"),
             },
+            content_type="multipart/form-data",
         )
 
         assert response.status_code == 400

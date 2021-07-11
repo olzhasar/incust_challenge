@@ -1,6 +1,7 @@
 import connexion
 from flask_jwt_extended import JWTManager
 from swagger_ui_bundle import swagger_ui_3_path
+from whitenoise import WhiteNoise
 
 from api.config import Config, TestConfig
 from api.models import User, db
@@ -19,6 +20,12 @@ def create_app(testing=False):
 
     config = Config if not testing else TestConfig
     app.app.config.from_object(config)
+
+    app.app.wsgi_app = WhiteNoise(
+        app.app.wsgi_app,
+        root="media/",
+        prefix="media/",
+    )
 
     db.init_app(app.app)
 

@@ -1,5 +1,8 @@
+import os
+
 import pytest
 from api import create_app
+from api.config import Config
 from api.models import db
 from flask_jwt_extended import create_access_token
 
@@ -28,9 +31,17 @@ def client(app):
         yield client
 
 
-def _create_user(username: str, password: str, avatar_url: str = None):
-    user = factories.UserFactory(username=username, avatar_url=avatar_url)
+def _create_user(username: str, password: str):
+    avatar = f"{username}.jpg"
+
+    user = factories.UserFactory(username=username)
     user.set_password("123qweasd")
+    user.avatar = avatar
+
+    filepath = os.path.join(Config.MEDIA_DIR, avatar)
+
+    with open(filepath, "wb") as f:
+        f.write(b"image")
 
     db.session.add(user)
     db.session.commit()
@@ -40,13 +51,13 @@ def _create_user(username: str, password: str, avatar_url: str = None):
 
 @pytest.fixture
 def user():
-    user = _create_user("user", "123qweasd", "http://example.com/avatar.jpg")
+    user = _create_user("user", "123qweasd")
     yield user
 
 
 @pytest.fixture
 def other_user():
-    user = _create_user("other_user", "zxcasd123", "http://example.com/avatar.jpg")
+    user = _create_user("other_user", "zxcasd123")
     yield user
 
 
