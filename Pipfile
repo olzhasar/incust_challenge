@@ -12,6 +12,7 @@ bcrypt = "*"
 pydantic = "*"
 pymysql = "*"
 cryptography = "*"
+whitenoise = "*"
 
 [dev-packages]
 pytest = "*"
