@@ -52,7 +52,6 @@ class TestProductListCreate:
             self.url,
             json={
                 "name": "My list",
-                "products": products_data,
             },
         )
 
@@ -60,75 +59,6 @@ class TestProductListCreate:
 
         product_list = ProductList.query.filter_by(user_id=user.id).one_or_none()
         assert product_list.name == "My list"
-
-        for product, data in zip(product_list.products, products_data):
-            assert product.sku == data["sku"]
-            assert product.name == data["name"]
-            assert product.image_url == data["image_url"]
-
-            for price, price_data in zip(product.prices, data["prices"]):
-                assert price.value == price_data["value"]
-                assert price.currency_code == price_data["currency_code"]
-
-    def test_skus_not_unique(self, client, as_user, user, product_1_data):
-        response = as_user.post(
-            self.url,
-            json={
-                "name": "not_unique_list",
-                "products": [product_1_data, product_1_data],
-            },
-        )
-
-        assert response.status_code == 400
-        assert (
-            response.json["detail"]
-            == "Each product must have a unique SKU inside product list"
-        )
-
-        assert not ProductList.query.filter_by(
-            user_id=user.id, name="not_unique_list"
-        ).one_or_none()
-
-    def test_prices_not_unique(self, client, user, as_user, product_1_data):
-        product_1_data["prices"] = [
-            {
-                "currency_code": "USD",
-                "value": 100,
-            },
-            {
-                "currency_code": "USD",
-                "value": 200,
-            },
-        ]
-
-        response = as_user.post(
-            self.url,
-            json={
-                "name": "not_unique_list",
-                "products": [product_1_data],
-            },
-        )
-
-        assert response.status_code == 400
-        assert (
-            response.json["detail"]
-            == "Only one price value is allowed for each currency code"
-        )
-
-        assert not ProductList.query.filter_by(
-            user_id=user.id, name="not_unique_list"
-        ).one_or_none()
-
-    def test_invalid_request(self, client, user, as_user):
-        response = as_user.post(
-            self.url,
-            json={
-                "name": "invalid_list",
-                "products": [{}],
-            },
-        )
-
-        assert response.status_code == 400
 
 
 class TestProductListReadAll:
@@ -206,7 +136,7 @@ class TestProductListReadOne:
                 "id": product.id,
                 "sku": product.sku,
                 "name": product.name,
-                "image_url": product.image_url,
+                "image": None,
                 "prices": [],
             }
 
@@ -226,7 +156,6 @@ class TestProductListReadOne:
         response = as_user.get(self.url.format(product_list.id))
 
         assert response.status_code == 200
-
         assert response.json == response_data
 
     @pytest.mark.parametrize(
@@ -291,7 +220,7 @@ class TestProductListReadOne:
     def test_other_user(self, product_list, as_other_user):
         response = as_other_user.get(self.url.format(product_list.id))
 
-        assert response.status_code == 401
+        assert response.status_code == 404
 
 
 class TestProductListDelete:
@@ -307,12 +236,12 @@ class TestProductListDelete:
 
         assert response.status_code == 404
 
-    def test_unauthorized(self, client, product_list):
-        response = client.delete(self.url.format(product_list.id))
-
-        assert response.status_code == 401
-
     def test_other_user(self, product_list, as_other_user):
         response = as_other_user.delete(self.url.format(product_list.id))
+
+        assert response.status_code == 404
+
+    def test_unauthorized(self, client, product_list):
+        response = client.delete(self.url.format(product_list.id))
 
         assert response.status_code == 401

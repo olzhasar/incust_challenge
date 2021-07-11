@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List, Optional
 
-from pydantic import BaseModel, HttpUrl, validator
+from pydantic import BaseModel, validator
 
 
 class UserCreateSchema(BaseModel):
@@ -32,16 +32,25 @@ class PriceSchema(BaseModel):
         orm_mode = True
 
 
-class ProductCreateSchema(BaseModel):
+class ProductBaseSchema(BaseModel):
     sku: str
     name: str
-    image_url: Optional[HttpUrl]
-
     prices: List[PriceSchema] = []
 
 
-class ProductSchema(ProductCreateSchema):
+class ProductCreateSchema(ProductBaseSchema):
+    product_list_id: int
+
+
+class ProductSchema(ProductBaseSchema):
     id: int
+    image: Optional[str]
+
+    @validator("image", pre=True)
+    def make_avatar_url(cls, v):
+        if v:
+            return f"/media/{v}"
+        return v
 
     class Config:
         orm_mode = True
@@ -49,12 +58,10 @@ class ProductSchema(ProductCreateSchema):
 
 class ProductListCreateSchema(BaseModel):
     name: Optional[str]
-    products: List[ProductCreateSchema] = []
 
 
-class ProductListShortSchema(BaseModel):
+class ProductListShortSchema(ProductListCreateSchema):
     id: int
-    name: Optional[str]
 
     class Config:
         orm_mode = True

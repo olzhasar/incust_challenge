@@ -23,7 +23,6 @@ class ProductFactory(factory.alchemy.SQLAlchemyModelFactory):
     sku = factory.Sequence(lambda n: n)
     name = factory.Faker("word")
     product_list = factory.SubFactory(ProductListFactory)
-    image_url = factory.Faker("image_url")
 
     class Meta:
         model = Product

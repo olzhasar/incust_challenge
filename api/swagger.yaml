@@ -60,14 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  username:
-                    type: string
-                  avatar:
-                    type: string
+                $ref: "#/components/schemas/User"
 
   /auth/profile:
     put:
@@ -90,12 +83,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                  avatar:
-                    type: string
+                $ref: "#/components/schemas/User"
 
   /product_lists:
     get:
@@ -114,12 +102,7 @@ paths:
                   results:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
+                      $ref: "#/components/schemas/ProductList"
 
     post:
       operationId: "api.views.product_lists.create"
@@ -130,7 +113,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductList'
+              type: object
+              properties:
+                name:
+                  type: string
 
       responses:
         201:
@@ -183,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductList'
+                $ref: '#/components/schemas/ProductListWithProducts'
     delete:
       operationId: "api.views.product_lists.delete"
       summary: Delete product list
@@ -200,40 +186,180 @@ paths:
         204:
           description: Product list was deleted successfully
 
+  /products:
+    post:
+      operationId: "api.views.products.create"
+      summary: Add new product
+      security:
+        - jwt: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ProductCreate"
+            encoding:
+              image:
+                contentType: image/png, image/jpeg
+
+      responses:
+        201:
+          description: Product list was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /products/{product_id}:
+    delete:
+      operationId: "api.views.products.delete"
+      summary: Delete product
+      security:
+        - jwt: []
+      parameters:
+        - name: product_id
+          in: path
+          description: ID of product
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        204:
+          description: Product was deleted successfully
+
+  /products/{product_id}/prices:
+    post:
+      operationId: "api.views.prices.create"
+      summary: Add prices to product in bulk
+      security:
+        - jwt: []
+      parameters:
+        - name: product_id
+          in: path
+          description: ID of product
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/ProductPrice"
+
+      responses:
+        201:
+          description: Prices were created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /products/{product_id}/prices/{currency_code}:
+    delete:
+      operationId: "api.views.prices.delete"
+      summary: Delete product price
+      security:
+        - jwt: []
+      parameters:
+        - name: product_id
+          in: path
+          description: ID of product
+          required: true
+          schema:
+            type: integer
+        - name: currency_code
+          in: path
+          description: Price currency code
+          required: true
+          schema:
+            type: string
+
+      responses:
+        204:
+          description: Prices were created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
 
 components:
   schemas:
+    ProductPrice:
+      type: object
+      required:
+        - currency_code
+        - value
+      properties:
+        currency_code:
+          type: string
+        value:
+          type: number
+
+    ProductCreate:
+      type: object
+      required:
+        - product_list_id
+        - sku
+        - name
+      properties:
+        product_list_id:
+          type: integer
+        sku:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+          format: binary
+
+    Product:
+      type: object
+      required:
+        - sku
+        - name
+      properties:
+        sku:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductPrice"
+
     ProductList:
       type: object
       properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    ProductListWithProducts:
+      type: object
+      properties:
+        id:
+          type: integer
         name:
           type: string
         products:
           type: array
           items:
-            type: object
-            required:
-              - sku
-              - name
-            properties:
-              sku:
-                type: string
-              name:
-                type: string
-              image_url:
-                type: string
-              prices:
-                type: array
-                items:
-                  type: object
-                  required:
-                    - value
-                    - currency_code
-                  properties:
-                    value:
-                      type: number
-                    currency_code:
-                      type: string
+            $ref: "#/components/schemas/Product"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        avatar:
+          type: string
 
   securitySchemes:
     jwt:
