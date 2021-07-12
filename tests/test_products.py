@@ -37,7 +37,6 @@ class TestProductCreate:
 
         assert response.json == {
             "id": product.id,
-            "product_list_id": product_list.id,
             "sku": product.sku,
             "name": product.name,
             "prices": [],
