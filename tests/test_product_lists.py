@@ -61,34 +61,6 @@ class TestProductListCreate:
         assert product_list.name == "My list"
 
 
-class TestProductListReadAll:
-    url = "/product_lists"
-
-    def test_ok(self, as_user, product_list):
-        response = as_user.get(self.url)
-
-        assert response.status_code == 200
-        assert response.json == {
-            "results": [
-                {
-                    "id": product_list.id,
-                    "name": product_list.name,
-                }
-            ]
-        }
-
-    def test_no_product_lists(self, as_user):
-        response = as_user.get(self.url)
-
-        assert response.status_code == 200
-        assert response.json == {"results": []}
-
-    def test_unauthorized(self, client):
-        response = client.get(self.url)
-
-        assert response.status_code == 401
-
-
 class TestProductListReadOne:
     url = "/product_lists/{}"
 
@@ -212,15 +184,43 @@ class TestProductListReadOne:
 
         assert response.status_code == 404
 
+    def test_other_user(self, product_list, as_other_user):
+        response = as_other_user.get(self.url.format(product_list.id))
+
+        assert response.status_code == 404
+
     def test_unauthorized(self, client, product_list):
         response = client.get(self.url.format(product_list.id))
 
         assert response.status_code == 401
 
-    def test_other_user(self, product_list, as_other_user):
-        response = as_other_user.get(self.url.format(product_list.id))
 
-        assert response.status_code == 404
+class TestProductListReadAll:
+    url = "/product_lists"
+
+    def test_ok(self, as_user, product_list):
+        response = as_user.get(self.url)
+
+        assert response.status_code == 200
+        assert response.json == {
+            "results": [
+                {
+                    "id": product_list.id,
+                    "name": product_list.name,
+                }
+            ]
+        }
+
+    def test_no_product_lists(self, as_user):
+        response = as_user.get(self.url)
+
+        assert response.status_code == 200
+        assert response.json == {"results": []}
+
+    def test_unauthorized(self, client):
+        response = client.get(self.url)
+
+        assert response.status_code == 401
 
 
 class TestProductListDelete:
